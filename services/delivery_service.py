@@ -1,5 +1,6 @@
 # services/delivery_service.py
 import logging
+import asyncio 
 from aiogram import Bot
 from sqlalchemy.ext.asyncio import AsyncSession
 from services.valentine_service import ValentineService
@@ -32,6 +33,10 @@ class DeliveryService:
                         delivered += 1
                     else:
                         failed += 1
+                    
+                    
+                    await asyncio.sleep(0.05)
+                    
                 except Exception as e:
                     logger.error(f"Помилка доставки валентинки #{valentine.id}: {e}")
                     failed += 1
@@ -45,10 +50,13 @@ class DeliveryService:
     
     async def deliver_valentine(self, valentine) -> bool:
         try:
-            recipient = await self.user_service.get_user_by_username(valentine.recipient_username)
+            
+            recipient = await self.user_service.get_by_username(valentine.recipient_username)
             
             if recipient is None:
+                
                 await self.valentine_service.mark_failed(valentine.id)
+                
                 
                 sender = await self.user_service.get_user(valentine.sender_id)
                 if sender:
@@ -73,7 +81,7 @@ class DeliveryService:
                 return True
             else:
                 await self.valentine_service.mark_failed(valentine.id)
-                logger.error(f"Не вдалося доставити валентинку #{valentine.id}")
+                logger.error(f"Не вдалося доставити валентинку #{valentine.id} (можливо бот заблокований)")
                 return False
         except Exception as e:
             logger.error(f"Помилка в deliver_valentine для #{valentine.id}: {e}")

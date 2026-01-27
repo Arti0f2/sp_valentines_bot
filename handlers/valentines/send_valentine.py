@@ -1,4 +1,3 @@
-# handlers/valentines/send_valentine.py
 import re
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
@@ -9,12 +8,16 @@ from bot.keyboards.inline_keyboards import get_delivery_slot_keyboard
 from bot.keyboards.main_menu import get_main_menu
 from services.valentine_service import ValentineService
 from services.balance_service import BalanceService
+from services.user_service import UserService  
 from config.constants import MAX_VALENTINE_TEXT_LENGTH, VALENTINE_COST
+
+
 from localization.texts import (
     SEND_VALENTINE_START,
     SEND_VALENTINE_MESSAGE,
     SEND_VALENTINE_SLOT,
     VALENTINE_CREATED,
+    VALENTINE_NOTIFICATION_NEW,  
     ERROR_INVALID_USERNAME,
     ERROR_SELF_SEND,
     ERROR_MESSAGE_TOO_LONG,
@@ -28,6 +31,7 @@ router = Router()
 logger = get_logger(__name__)
 
 USERNAME_PATTERN = re.compile(r'^@?[a-zA-Z0-9_]{1,32}$')
+
 
 @router.message(F.text == MENU_BUTTON_SEND)
 async def start_send_valentine(message: Message, state: FSMContext, session: AsyncSession):
@@ -48,8 +52,9 @@ async def start_send_valentine(message: Message, state: FSMContext, session: Asy
             reply_markup=get_main_menu()
         )
     except Exception as e:
-        logger.error(f"Помилка в start_send_valentine: {e}")
+        logger.error(f"Ошибка в start_send_valentine: {e}")
         await message.answer(text=ERROR_GENERIC)
+
 
 @router.message(SendValentineStates.recipient_username)
 async def process_recipient_username(message: Message, state: FSMContext):
@@ -72,8 +77,9 @@ async def process_recipient_username(message: Message, state: FSMContext):
         
         await message.answer(text=SEND_VALENTINE_MESSAGE)
     except Exception as e:
-        logger.error(f"Помилка в process_recipient_username: {e}")
+        logger.error(f"Ошибка в process_recipient_username: {e}")
         await message.answer(text=ERROR_GENERIC)
+
 
 @router.message(SendValentineStates.message_text)
 async def process_message_text(message: Message, state: FSMContext):
@@ -85,7 +91,7 @@ async def process_message_text(message: Message, state: FSMContext):
             return
         
         if len(text) == 0:
-            await message.answer(text=ERROR_MESSAGE_TOO_LONG)
+            await message.answer(text="Текст не может быть пустым.")
             return
         
         await state.update_data(message_text=text)
@@ -96,8 +102,9 @@ async def process_message_text(message: Message, state: FSMContext):
             reply_markup=get_delivery_slot_keyboard()
         )
     except Exception as e:
-        logger.error(f"Помилка в process_message_text: {e}")
+        logger.error(f"Ошибка в process_message_text: {e}")
         await message.answer(text=ERROR_GENERIC)
+
 
 @router.callback_query(SendValentineStates.delivery_slot, F.data.startswith("slot:"))
 async def process_delivery_slot(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
@@ -105,7 +112,6 @@ async def process_delivery_slot(callback: CallbackQuery, state: FSMContext, sess
         await callback.answer()
         
         slot = callback.data.split(":")[1]
-        
         data = await state.get_data()
         recipient_username = data.get('recipient_username')
         message_text = data.get('message_text')
@@ -116,18 +122,19 @@ async def process_delivery_slot(callback: CallbackQuery, state: FSMContext, sess
             return
         
         sender_id = callback.from_user.id
-        
         balance_service = BalanceService(session)
-        balance = await balance_service.get_balance(sender_id)
         
-        if balance < VALENTINE_COST:
-            await callback.message.answer(
-                text=ERROR_INSUFFICIENT_BALANCE.format(balance=balance),
-                reply_markup=get_main_menu()
-            )
-            await state.clear()
-            return
         
+        if not await balance_service.can_afford(sender_id, VALENTINE_COST):
+             balance = await balance_service.get_balance(sender_id)
+             await callback.message.answer(
+                 text=ERROR_INSUFFICIENT_BALANCE.format(balance=balance), 
+                 reply_markup=get_main_menu()
+             )
+             await state.clear()
+             return
+
+     
         valentine_service = ValentineService(session)
         await valentine_service.create_valentine(
             sender_id=sender_id,
@@ -136,21 +143,13 @@ async def process_delivery_slot(callback: CallbackQuery, state: FSMContext, sess
             delivery_slot=slot
         )
         
-        success = await balance_service.add_balance(sender_id, -VALENTINE_COST)
         
-        if not success:
-            await callback.message.answer(text=ERROR_GENERIC, reply_markup=get_main_menu())
-            await state.clear()
-            return
-        
+        await balance_service.add_balance(sender_id, -VALENTINE_COST)
         new_balance = await balance_service.get_balance(sender_id)
         
-        slot_times = {
-            "morning": "10:00",
-            "afternoon": "14:00",
-            "evening": "20:00"
-        }
+        slot_times = {"morning": "10:00", "afternoon": "14:00", "evening": "20:00"}
         
+       
         await callback.message.answer(
             text=VALENTINE_CREATED.format(
                 time=slot_times.get(slot, "00:00"),
@@ -158,12 +157,28 @@ async def process_delivery_slot(callback: CallbackQuery, state: FSMContext, sess
             ),
             reply_markup=get_main_menu()
         )
-        
+
+     
+        user_service = UserService(session)
+        recipient = await user_service.get_by_username(recipient_username)
+
+        if recipient:
+            try:
+                
+                await callback.bot.send_message(
+                    chat_id=recipient.user_id,
+                    text=VALENTINE_NOTIFICATION_NEW
+                )
+                logger.info(f"Уведомление отправлено пользователю {recipient.user_id}")
+            except Exception as e:
+               
+                logger.warning(f"Не удалось отправить уведомление получателю: {e}")
+       
+
         await state.clear()
-        
-        logger.info(f"Створено валентинку від {sender_id} до @{recipient_username}")
+        logger.info(f"Создана валентинка от {sender_id} для @{recipient_username}")
         
     except Exception as e:
-        logger.error(f"Помилка в process_delivery_slot: {e}")
+        logger.error(f"Критическая ошибка в process_delivery_slot: {e}")
         await callback.message.answer(text=ERROR_GENERIC, reply_markup=get_main_menu())
         await state.clear()

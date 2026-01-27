@@ -23,3 +23,5 @@ def setup_logger(name: str, log_file: str = "bot.log", level=logging.INFO):
     logger.addHandler(file_handler)
     
     return logger
+
+get_logger = setup_logger

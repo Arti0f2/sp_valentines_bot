@@ -1,4 +1,4 @@
-# handlers/valentines/__init__.py
-from handlers.valentines.send_valentine import router as send_valentine_router
-
-__all__ = ['send_valentine_router']
+from aiogram import Router
+from .send_valentine import router as send_valentine_router
+router = Router()
+router.include_router(send_valentine_router)
