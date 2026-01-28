@@ -85,13 +85,12 @@ Database Migration
 Initialize the database tables using Alembic:
 alembic upgrade head
 
-
-
 ### 5. Run the Bot
 Start the application:
-```bash
+
 python main.py
 
+```
 ---
 
 ## License
