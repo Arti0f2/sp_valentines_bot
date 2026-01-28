@@ -87,5 +87,15 @@ alembic upgrade head
 
 
 
-Run the Bot
+### 5. Run the Bot
+Start the application:
+```bash
 python main.py
+
+---
+
+## License
+Developed for a charitable cause 
+
+License: MIT
+
