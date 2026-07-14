@@ -40,11 +40,19 @@ The core concept is simple: **Donations turn into Valentines.** Users donate to 
 * **Scheduler:** Custom async loop for payment checking & delivery.
 
 
-Create a virtual environment
+## 🚀 Installation & Setup
 
+### 1. Create a virtual environment
+First, create and activate a virtual environment to isolate dependencies:
+
+```bash
+# Create the environment
 python -m venv venv
+
+# Activate it:
 # Windows
 venv\Scripts\activate
+
 # Mac/Linux
 source venv/bin/activate
 
@@ -77,22 +85,16 @@ Database Migration
 Initialize the database tables using Alembic:
 alembic upgrade head
 
+### 5. Run the Bot
+Start the application:
 
-
-Run the Bot
 python main.py
 
+```
+---
 
+## License
+Developed for a charitable cause 
 
-Project Structure
-├── bot/
-│   ├── handlers/         # Message handlers (Admin, Donate, Valentines)
-│   ├── keyboards/        # Inline and Reply keyboards
-│   ├── states/           # FSM States
-│   └── middlewares/      # Throttling and anti-spam
-├── config/               # Settings and constants
-├── database/             # Models and repositories (SQLAlchemy)
-├── services/             # Business logic (Monobank, Delivery, User services)
-├── localization/         # Text messages and templates
-├── utils/                # Loggers and validators
-└── main.py               # Entry point
+License: MIT
+
