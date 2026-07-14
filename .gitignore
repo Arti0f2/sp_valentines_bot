@@ -1,4 +1,3 @@
-# .gitignore
 __pycache__/
 *.py[cod]
 *$py.class
@@ -29,6 +28,8 @@ venv.bak/
 logs/
 *.log
 .DS_Store
+.vscode/
+.idea/
 alembic/versions/*.py
 !alembic/versions/__init__.py
 

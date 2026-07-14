@@ -26,7 +26,7 @@ The core concept is simple: **Donations turn into Valentines.** Users donate to 
 ###  Admin & Technical
 * **Admin Panel:** Approve/Reject manual top-up requests.
 * **Force Delivery:** Command `/force_delivery` to manually trigger message sending in case of scheduler failure.
-* **Rate Limiting:** Intelligent queuing system to avoid Telegram "Flood Wait" bans during mass delivery.
+* **Rate Limiting:** Queue-based delivery flow to avoid Telegram "Flood Wait" bans during mass delivery.
 * **PostgreSQL:** Robust data storage using SQLAlchemy + Asyncpg.
 
 ---
