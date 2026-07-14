@@ -11,6 +11,7 @@ def setup_logger(name: str, log_file: str = "bot.log", level=logging.INFO):
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
+    # логуємо в stdout + файл
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)

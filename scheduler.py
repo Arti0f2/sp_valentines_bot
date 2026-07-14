@@ -22,6 +22,7 @@ def signal_handler(signum, frame):
     shutdown_event.set()
 
 async def deliver_morning():
+    # розпилання як ранок, обід і вечір
     logger.info("Запуск доставки: ранковий слот")
     await deliver_slot("morning")
 
@@ -34,6 +35,7 @@ async def deliver_evening():
     await deliver_slot("evening")
 
 async def deliver_slot(slot: str):
+    # окремий bot + db сесія для кожного слоту
     bot = Bot(
         token=settings.BOT_TOKEN,
         default=DefaultBotProperties(parse_mode=ParseMode.HTML)

@@ -6,13 +6,16 @@ from config.constants import DELIVERY_DATE_DAY, DELIVERY_DATE_MONTH
 KYIV_TZ = timezone('Europe/Kyiv')
 
 def now_kyiv() -> datetime:
+    # текущее время в киеве
     return datetime.now(KYIV_TZ)
 
 def is_february_14() -> bool:
+    # чи сьогодні день валентина
     now = now_kyiv()
     return now.month == DELIVERY_DATE_MONTH and now.day == DELIVERY_DATE_DAY
 
 def current_delivery_slot() -> str:
+    # визначаємо поточний слот
     now = now_kyiv()
     hour = now.hour
     

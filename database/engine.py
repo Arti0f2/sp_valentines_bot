@@ -5,11 +5,12 @@ from config.settings import settings
 
 Base = declarative_base()
 
+# реліз з pool_pre_ping для виявлення dead connections
 engine = create_async_engine(
     settings.DATABASE_URL,
     echo=False,
     future=True,
-    pool_pre_ping=True,
+    pool_pre_ping=True,  # перевіряємо conn перед використанням
     pool_size=10,
     max_overflow=20
 )
@@ -27,8 +28,10 @@ async def get_session() -> AsyncSession:
         yield session
 
 async def init_db():
+    # створюємо всі таблиці за моделями
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
 async def close_db():
+    # закриваємо connection pool
     await engine.dispose()

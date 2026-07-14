@@ -22,6 +22,7 @@ def get_donate_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 def get_admin_topup_keyboard(user_id: int) -> InlineKeyboardMarkup:
+    # варіанти обьєми робленэ
     keyboard = [
         [
             InlineKeyboardButton(text=ADMIN_BUTTON_APPROVE_1, callback_data=f"topup_approve:{user_id}:1"),
@@ -38,6 +39,7 @@ def get_admin_topup_keyboard(user_id: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 def get_delivery_slot_keyboard() -> InlineKeyboardMarkup:
+    # выбор времени доставки
     keyboard = [
         [InlineKeyboardButton(text=SLOT_MORNING, callback_data="slot:morning")],
         [InlineKeyboardButton(text=SLOT_AFTERNOON, callback_data="slot:afternoon")],

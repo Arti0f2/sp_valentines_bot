@@ -39,6 +39,7 @@ class UserService:
         user_id: int,
         new_username: Optional[str]
     ) -> None:
+        # користувач міг змінити username в телеграмі - синхронізуємо
         try:
             user = await self.user_repo.get_by_user_id(user_id)
             if user is None:

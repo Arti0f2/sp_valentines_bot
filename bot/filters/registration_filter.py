@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from services.user_service import UserService
 
 class IsRegisteredFilter(BaseFilter):
+    # тільки в базі
     async def __call__(self, message: Message, session: AsyncSession) -> bool:
         user_service = UserService(session)
         return await user_service.is_registered(message.from_user.id)

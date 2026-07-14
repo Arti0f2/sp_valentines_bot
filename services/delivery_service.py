@@ -34,7 +34,7 @@ class DeliveryService:
                     else:
                         failed += 1
                     
-                    
+                    # rate limit для телеграма
                     await asyncio.sleep(0.05)
                     
                 except Exception as e:
@@ -50,14 +50,14 @@ class DeliveryService:
     
     async def deliver_valentine(self, valentine) -> bool:
         try:
-            
+            # шукаємо адресата
             recipient = await self.user_service.get_by_username(valentine.recipient_username)
             
             if recipient is None:
-                
+                # адресат не знайдений - позначаємо як failed
                 await self.valentine_service.mark_failed(valentine.id)
                 
-                
+                # повідомляємо відправника
                 sender = await self.user_service.get_user(valentine.sender_id)
                 if sender:
                     await self.notification_service.send_message(
@@ -80,6 +80,7 @@ class DeliveryService:
                 logger.info(f"Валентинку #{valentine.id} доставлено до {recipient.user_id}")
                 return True
             else:
+                # бот блокований або інша помилка
                 await self.valentine_service.mark_failed(valentine.id)
                 logger.error(f"Не вдалося доставити валентинку #{valentine.id} (можливо бот заблокований)")
                 return False

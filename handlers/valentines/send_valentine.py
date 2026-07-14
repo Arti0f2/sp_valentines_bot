@@ -1,3 +1,4 @@
+# handler для відправлення листівок
 import re
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
@@ -30,6 +31,7 @@ from utils.logger import get_logger
 router = Router()
 logger = get_logger(__name__)
 
+# telegram username: @username або username
 USERNAME_PATTERN = re.compile(r'^@?[a-zA-Z0-9_]{1,32}$')
 
 
@@ -39,6 +41,7 @@ async def start_send_valentine(message: Message, state: FSMContext, session: Asy
         balance_service = BalanceService(session)
         balance = await balance_service.get_balance(message.from_user.id)
         
+        # перевіряємо достатність коштів
         if balance < VALENTINE_COST:
             await message.answer(
                 text=ERROR_INSUFFICIENT_BALANCE.format(balance=balance),
@@ -61,6 +64,7 @@ async def process_recipient_username(message: Message, state: FSMContext):
     try:
         username = message.text.strip()
         
+        # валідація формату
         if not USERNAME_PATTERN.match(username):
             await message.answer(text=ERROR_INVALID_USERNAME)
             return
@@ -68,6 +72,7 @@ async def process_recipient_username(message: Message, state: FSMContext):
         normalized_username = username.lower().lstrip('@')
         sender_username = message.from_user.username
         
+        # не дозволяємо відправляти собі
         if sender_username and normalized_username == sender_username.lower():
             await message.answer(text=ERROR_SELF_SEND)
             return

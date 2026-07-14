@@ -19,6 +19,7 @@ class NotificationService:
             )
             return True
         except TelegramForbiddenError:
+            # користувач блокнув бота
             logger.warning(f"User {user_id} blocked the bot")
             return False
         except TelegramBadRequest as e:
@@ -77,6 +78,7 @@ class NotificationService:
                 continue
     
     async def broadcast(self, user_ids: List[int], text: str, reply_markup=None) -> tuple[int, int]:
+        # россылаем всем игрокам (но если блок или ошибка - скипим)
         success_count = 0
         fail_count = 0
         

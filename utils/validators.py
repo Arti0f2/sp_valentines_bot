@@ -7,9 +7,11 @@ def validate_username(username: str) -> bool:
     
     clean_username = username.lstrip('@').lower()
     
+    # telegram вимагає 5-32 символи
     if len(clean_username) < 5 or len(clean_username) > 32:
         return False
     
+    # тільки літери, цифри та підчеркування
     pattern = r'^[a-z0-9_]+$'
     return bool(re.match(pattern, clean_username))
 
@@ -18,5 +20,6 @@ def validate_age(age: int) -> bool:
     return MIN_AGE <= age <= MAX_AGE
 
 def validate_valentine_text(text: str) -> bool:
+    # максимальна довжина з констант
     from config.constants import MAX_VALENTINE_TEXT_LENGTH
     return 1 <= len(text.strip()) <= MAX_VALENTINE_TEXT_LENGTH

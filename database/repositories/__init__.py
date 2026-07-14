@@ -1,4 +1,6 @@
 # database/repositories/__init__.py
+# репозиторі для работи с базої
+
 from database.repositories.base import BaseRepository
 from database.repositories.user_repository import UserRepository
 from database.repositories.transaction_repository import TransactionRepository

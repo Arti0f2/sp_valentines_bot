@@ -19,6 +19,7 @@ class ValentineService:
         message_text: str,
         delivery_slot: str
     ) -> Optional[Valentine]:
+        # первіряем достатність коштів та користувач
         sender = await self.user_repo.get_by_user_id(sender_id)
         if sender is None or sender.balance < VALENTINE_COST:
             return None

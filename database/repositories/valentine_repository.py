@@ -15,6 +15,7 @@ class ValentineRepository:
         message_text: str,
         delivery_slot: str
     ) -> Valentine:
+        # нормалізуємо username (lower + видаляємо @)
         normalized_username = recipient_username.lower().lstrip('@')
         
         valentine = Valentine(
@@ -31,6 +32,7 @@ class ValentineRepository:
         return valentine
     
     async def get_pending_for_delivery(self, delivery_slot: str) -> List[Valentine]:
+        # отримуємо всі листівки що чекають доставки в конкретний слот
         result = await self.session.execute(
             select(Valentine)
             .where(Valentine.delivery_slot == delivery_slot)
@@ -40,6 +42,7 @@ class ValentineRepository:
         return list(result.scalars().all())
     
     async def get_received_by_username(self, username: str, limit: int = 100) -> List[Valentine]:
+        # листівки що вже доставлені користувачу
         normalized_username = username.lower().lstrip('@') if username else None
         if not normalized_username:
             return []
@@ -54,6 +57,7 @@ class ValentineRepository:
         return list(result.scalars().all())
     
     async def mark_sent(self, valentine_id: int) -> bool:
+        # позначаємо як доставлена
         result = await self.session.execute(
             update(Valentine)
             .where(Valentine.id == valentine_id)
@@ -64,6 +68,7 @@ class ValentineRepository:
         return result.rowcount > 0
     
     async def mark_failed(self, valentine_id: int) -> bool:
+        # позначаємо як не доставлена (цей юзер не знайдено)
         result = await self.session.execute(
             update(Valentine)
             .where(Valentine.id == valentine_id)

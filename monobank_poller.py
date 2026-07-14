@@ -1,4 +1,5 @@
 # monobank_poller.py
+# окремий процес для опитування monobank api в фоні
 import asyncio
 import logging
 from datetime import datetime
@@ -43,8 +44,10 @@ async def poll_monobank():
                     balance_service = BalanceService(session)
                     notification_service = NotificationService(bot)
                     
+                    # синхронізація нових транзакцій з monobank
                     processed = await monobank_service.sync_transactions()
                     
+                    # сповіщаємо користувачів про поповнення
                     for user_id, amount in processed:
                         user_balance = await balance_service.get_balance(user_id)
                         
@@ -57,11 +60,10 @@ async def poll_monobank():
                         )
                     
                     if processed:
-                        logger.info(f"Оброблено транзакцій: {len(processed)}")
-                
+                        logger.info(f\"Оброблено транзакцій: {len(processed)}\")\n                
             except Exception as e:
-                logger.error(f"Помилка в циклі polling: {e}")
-            
+                logger.error(f\"Помилка в циклі polling: {e}\")\n            
+            # чекаємо перед наступним опитуванням
             await asyncio.sleep(MONOBANK_POLL_INTERVAL)
     
     except KeyboardInterrupt:

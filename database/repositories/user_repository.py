@@ -9,7 +9,7 @@ class UserRepository:
         self.session = session
     
     async def create_user(self, user_id: int, username: Optional[str], full_name: str, balance: int = 0) -> User:
-        normalized_username = username.lower().lstrip('@') if username else None
+    # нормалізуємо username (lower + видаляємо @)
         
         user = User(
             user_id=user_id,
@@ -30,7 +30,7 @@ class UserRepository:
         return result.scalar_one_or_none()
     
     async def get_by_username(self, username: str) -> Optional[User]:
-        normalized_username = username.lower().lstrip('@')
+    # шукаємо користувача за username з нормалізацією
         
         result = await self.session.execute(
             select(User).where(User.username == normalized_username)
@@ -38,12 +38,13 @@ class UserRepository:
         return result.scalar_one_or_none()
     
     async def update_balance(self, user_id: int, delta: int) -> bool:
-        user = await self.get_by_user_id(user_id)
-        if user is None:
-            return False
-        
-        new_balance = user.balance + delta
-        if new_balance < 0:
+    # більш безпечно змінювати balance - на основі поточного значення
+    user = await self.get_by_user_id(user_id)
+    if user is None:
+        return False
+    
+    new_balance = user.balance + delta
+    # не дозволяємо від'ємний баланс
             return False
         
         result = await self.session.execute(

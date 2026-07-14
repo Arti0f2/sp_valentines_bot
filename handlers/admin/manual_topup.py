@@ -30,10 +30,7 @@ logger = get_logger(__name__)
 
 @router.message(Command("force_delivery"))
 async def force_delivery_test(message: Message, session: AsyncSession, bot: Bot):
-    """
-    Команда запускает рассылку ПРЯМО СЕЙЧАС.
-    Використання: /force_delivery morning (або afternoon, evening)
-    """
+    # задоволена россылка в якя нюй секунди для тесту
     
     if message.from_user.id not in settings.ADMIN_IDS:
         return
@@ -66,6 +63,7 @@ async def force_delivery_test(message: Message, session: AsyncSession, bot: Bot)
 
 @router.message(ManualTopupStates.waiting_screenshot, F.photo | F.document)
 async def handle_screenshot(message: Message, state: FSMContext, bot: Bot):
+    # обробляем скрин и посылаем админу
     try:
         user_id = message.from_user.id
         full_name = message.from_user.full_name or "Користувач"
@@ -113,6 +111,7 @@ async def invalid_screenshot_type(message: Message):
 
 @router.callback_query(F.data.startswith("topup_approve:"))
 async def admin_approve_topup(callback: CallbackQuery, session: AsyncSession, bot: Bot):
+    # адмін нараховує листівки
     try:
         if callback.from_user.id not in settings.ADMIN_IDS:
             await callback.answer("Ви не адміністратор", show_alert=True)
@@ -123,6 +122,7 @@ async def admin_approve_topup(callback: CallbackQuery, session: AsyncSession, bo
             await callback.answer("Невірний формат даних", show_alert=True)
             return
         
+        # розпарсили user_id і amount із callback
         user_id = int(parts[1])
         amount = int(parts[2])
         admin_id = callback.from_user.id

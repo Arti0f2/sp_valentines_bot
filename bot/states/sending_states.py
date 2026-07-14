@@ -2,6 +2,7 @@
 from aiogram.fsm.state import State, StatesGroup
 
 class SendValentineStates(StatesGroup):
+    # послідовність: username -> текст -> время
     recipient_username = State() 
     message_text = State()       
     delivery_slot = State() 

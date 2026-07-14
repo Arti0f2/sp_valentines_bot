@@ -14,11 +14,11 @@ class MonobankClient:
     
     async def get_statement(
         self,
-        account: str = "0",  # Примечание: id аккаунта часто строка (UUID), но "0" это дефолтный
+        account: str = "0",  # дефолт аккаунт
         from_time: Optional[datetime] = None,
         to_time: Optional[datetime] = None
     ) -> List[Dict[str, Any]]:
-        
+        # рейтлімітимо до останнього часу
         if from_time is None:
             from_time = datetime.now() - timedelta(hours=1)
             
@@ -41,6 +41,7 @@ class MonobankClient:
                         data = await response.json()
                         return data
                     elif response.status == 429:
+                        # monobank має рейтлімітерами - чекаємо
                         logger.warning("Monobank API rate limit exceeded")
                         return []
                     else:

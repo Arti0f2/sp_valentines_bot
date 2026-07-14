@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from services.user_service import UserService
 
 class UserTrackingMiddleware(BaseMiddleware):
+    # синхронізуємо username користувача якщо він змінився в телеграмі
     async def __call__(
         self,
         handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
@@ -31,6 +32,6 @@ class UserTrackingMiddleware(BaseMiddleware):
                         user.username
                     )
             except Exception:
-                pass
+                pass  # не вважаємо помилкою синхронізації за причину для фейлу
         
         return await handler(event, data)

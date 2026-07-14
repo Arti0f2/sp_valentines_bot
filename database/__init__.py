@@ -1,4 +1,6 @@
 # database/__init__.py
+# база та моделі
+
 from database.engine import (
     Base,
     engine,

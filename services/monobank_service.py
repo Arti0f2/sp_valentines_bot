@@ -18,6 +18,7 @@ class MonobankService:
         self.user_repo = UserRepository(session)
     
     async def sync_transactions(self) -> list[tuple[int, int]]:
+        # опитуємо monobank за останню годину
         from_time = datetime.now() - timedelta(hours=1)
         
         try:
@@ -30,6 +31,7 @@ class MonobankService:
         
         for transaction in transactions:
             try:
+                # пропускаємо відведення
                 if transaction.get('amount', 0) <= 0:
                     continue
                 
@@ -38,18 +40,22 @@ class MonobankService:
                 amount_kopecks = transaction.get('amount', 0)
                 amount_uah = amount_kopecks / 100
                 
+                # перевіряємо чи вже обробили
                 exists = await self.transaction_repo.exists_by_transaction_id(transaction_id)
                 if exists:
                     continue
                 
+                # витягуємо user_id з коментаря платежу
                 user_id = self._parse_user_id_from_comment(description)
                 if user_id is None:
                     continue
                 
+                # перевіряємо чи користувач зареєстрований
                 user_exists = await self.user_repo.exists(user_id)
                 if not user_exists:
                     continue
                 
+                # 10 грн = 1 листівка
                 valentines_count = int(amount_uah // 10)
                 if valentines_count <= 0:
                     continue

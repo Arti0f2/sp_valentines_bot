@@ -20,6 +20,7 @@ async def cmd_start(message: Message, session: AsyncSession):
         username = message.from_user.username
         full_name = message.from_user.full_name or "Користувач"
         
+        # режиструємо якщо новий користувач
         is_registered = await user_service.is_registered(user_id)
         
         if not is_registered:
@@ -30,6 +31,7 @@ async def cmd_start(message: Message, session: AsyncSession):
             )
             logger.info(f"Зареєстровано нового користувача: {user_id}")
         else:
+            # актуалізуємо username якщо змінився
             await user_service.update_username_if_changed(user_id, username)
         
         await message.answer(

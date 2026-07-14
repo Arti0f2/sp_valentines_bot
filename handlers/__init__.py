@@ -5,15 +5,13 @@ from handlers.admin import manual_topup
 from handlers.valentines import router as valentines_router
 
 def register_all_routers() -> Router:
-    """
-    Ця функція збирає всі "гілки" логіки в один головний роутер.
-    """
+    # збірамо всі роутери в один
     main_router = Router()
     
-    
+    # адмін команди первіши
     main_router.include_router(manual_topup.router)
     
-   
+    # життя-оборот
     main_router.include_router(donate.router)
     main_router.include_router(valentines_router)
     

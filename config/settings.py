@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Settings:
+    # читаємо все з .env файлу
     BOT_TOKEN: str = os.getenv("BOT_TOKEN", "")
     DATABASE_URL: str = os.getenv("DATABASE_URL", "")
     MONOBANK_TOKEN: str = os.getenv("MONOBANK_TOKEN", "")
@@ -13,6 +14,7 @@ class Settings:
     TIMEZONE: str = os.getenv("TIMEZONE", "Europe/Kyiv")
     
     def validate(self) -> None:
+        # фейлимо на старте якщо щось забули налаштувати
         if not self.BOT_TOKEN:
             raise ValueError("BOT_TOKEN не встановлено")
         if not self.DATABASE_URL:

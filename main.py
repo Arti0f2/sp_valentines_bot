@@ -1,4 +1,4 @@
-import sys  #Додано для перевірки платформи
+import sys
 import asyncio
 import logging
 import signal
@@ -15,13 +15,14 @@ logger = setup_logger(__name__)
 shutdown_event = asyncio.Event()
 
 def signal_handler(signum, frame):
+    # сигнал завершення з shell
     logger.info(f"Отримано сигнал {signum}, зупинка бота...")
     
     loop = asyncio.get_running_loop()
     loop.call_soon_threadsafe(shutdown_event.set)
 
 async def main():
-   
+    # linux/mac сигнали не працюють через asyncio на windows
     if sys.platform != 'win32':
         loop = asyncio.get_running_loop()
         loop.add_signal_handler(signal.SIGINT, shutdown_event.set)
@@ -32,7 +33,7 @@ async def main():
         logger.info("База даних ініціалізована")
     except Exception as e:
         logger.error(f"Помилка ініціалізації БД: {e}")
-        return
+        return  # вихід якщо бд не підійшла
     
     bot = Bot(
         token=settings.BOT_TOKEN,
@@ -44,12 +45,12 @@ async def main():
     logger.info("Бот запущено")
     
     try:
-        
+        # запуск опитування в фоні
         polling_task = asyncio.create_task(
             dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
         )
         
-        
+        # чекаємо на сигнал завершення
         await shutdown_event.wait()
         
         
@@ -59,7 +60,7 @@ async def main():
         try:
             await polling_task
         except asyncio.CancelledError:
-            logger.info("Polling успішно зупинено")
+            logger.info("Polling успішно зупинено")  # очікування на cancellation
         
     except Exception as e:
         logger.error(f"Критична помилка: {e}")
@@ -68,15 +69,14 @@ async def main():
         logger.info("Сесію бота закрито")
 
 if __name__ == "__main__":
-    #КРИТИЧНО ВАЖЛИВИЙ БЛОК ДЛЯ WINDOWS ( для локального тесту )
+    # windows потребує selector loop для сигналів (локальний тест)
     if sys.platform == 'win32':
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    #КРИТИЧНО ВАЖЛИВИЙ БЛОК ДЛЯ WINDOWS
     
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        # Цей блок ловить Ctrl+C на Windows до того, як event loop запустився або після його закриття
+        # ctrl+c на windows
         logger.info("Бот зупинено користувачем (KeyboardInterrupt)")
     except Exception as e:
         logger.error(f"Неочікувана помилка: {e}")

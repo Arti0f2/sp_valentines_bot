@@ -1,4 +1,5 @@
 # healthcheck.py
+# простий http endpoint для docker/k8s health checks
 import asyncio
 from aiohttp import web
 from utils.logger import setup_logger
@@ -6,6 +7,7 @@ from utils.logger import setup_logger
 logger = setup_logger(__name__)
 
 async def health(request):
+    # all good
     return web.Response(text='OK', status=200)
 
 async def run_healthcheck():
@@ -19,7 +21,7 @@ async def run_healthcheck():
     site = web.TCPSite(runner, '0.0.0.0', 8080)
     await site.start()
     
-    logger.info("Healthcheck server запущено на порту 8080")
+    logger.info(\"Healthcheck server запущено на порту 8080\")
     
     try:
         await asyncio.Event().wait()

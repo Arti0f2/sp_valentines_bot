@@ -7,6 +7,7 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 class AdminCheckMiddleware(BaseMiddleware):
+    # todo: наразі пасивна, можна долучити для логування
     async def __call__(
         self,
         handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],

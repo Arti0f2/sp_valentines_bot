@@ -20,9 +20,11 @@ class BalanceService:
         return success
     
     async def manual_topup(self, user_id: int, amount: int, admin_id: int) -> bool:
+        # адмін вручну поповнив баланс
         if amount <= 0:
             return False
         
+        # унікальна id для уникнення дублів
         timestamp = int(datetime.now().timestamp())
         transaction_id = f"manual_{user_id}_{admin_id}_{timestamp}"
         
@@ -54,6 +56,7 @@ class BalanceService:
         return balance >= cost
     
     async def deduct_balance(self, user_id: int, amount: int) -> bool:
+        # списуємо баланс за листівку
         if amount <= 0:
             return False
         

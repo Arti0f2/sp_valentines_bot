@@ -30,7 +30,7 @@ class TransactionRepository:
         return donation
     
     async def exists_by_transaction_id(self, transaction_id: str) -> bool:
-        result = await self.session.execute(
+    # перевіряємо чи вже обробили цю транзакцію з monobank
             select(Donation.id).where(Donation.transaction_id == transaction_id)
         )
         return result.scalar_one_or_none() is not None
@@ -45,7 +45,7 @@ class TransactionRepository:
         return list(result.scalars().all())
     
     async def sum_by_user(self, user_id: int) -> float:
-        result = await self.session.execute(
+    # сумуємо тільки завершені платежі
             select(func.sum(Donation.amount))
             .where(Donation.user_id == user_id)
             .where(Donation.status == 'completed')

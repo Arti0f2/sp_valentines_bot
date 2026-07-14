@@ -1,4 +1,6 @@
 # services/__init__.py
+# бізнес логіка
+
 from services.user_service import UserService
 from services.balance_service import BalanceService
 from services.valentine_service import ValentineService

@@ -7,11 +7,13 @@ from database.engine import Base
 T = TypeVar('T', bound=Base)
 
 class BaseRepository(Generic[T]):
+    # базовий клас для всіх репозиторіїв
     def __init__(self, model: Type[T], session: AsyncSession):
         self.model = model
         self.session = session
     
     async def add(self, instance: T) -> T:
+        # зберегти + оновити об'єкт
         self.session.add(instance)
         await self.session.flush()
         await self.session.refresh(instance)

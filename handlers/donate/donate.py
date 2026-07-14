@@ -21,6 +21,7 @@ logger = get_logger(__name__)
 async def show_donate(message: Message):
     try:
         user_id = message.from_user.id
+        # user_id в коментарі - відправник monobank
         code = str(user_id)
         
         text = DONATE_INSTRUCTION.format(code=code)
@@ -38,6 +39,7 @@ async def donate_forgot_comment(callback: CallbackQuery, state: FSMContext):
     try:
         await callback.answer()
         
+        # переходимо в стан очікування скрина
         await state.set_state(ManualTopupStates.waiting_screenshot)
         
         await callback.message.answer(

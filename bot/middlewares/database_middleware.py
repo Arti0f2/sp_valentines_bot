@@ -5,6 +5,7 @@ from aiogram.types import TelegramObject
 from database.engine import async_session_factory
 
 class DatabaseMiddleware(BaseMiddleware):
+    # іньєктуємо db сесію в кожний реквест
     async def __call__(
         self,
         handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
